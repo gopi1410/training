@@ -1,0 +1,29 @@
+Download  db-derby-10.11.1.1-bin.zip, myotherdb.zip, REST/RestSample.zip
+Unzip db-derby-10.11.1.1-bin.zip in some folder
+Unzip myotherdb.zip in some folder
+Open command line.
+change directory to the db-derby-10.11.1.1-bin\bin folder
+Run the following commands:
+
+set DERBY_HOME=..\
+setNetworkServerCP
+startNetworkServer
+
+Open eclipse
+Close welcome screen, 
+right click and choose import -> General -> Existing project into workspace
+Select RestSample.zip and finish
+
+Locate hibernate.cfg.xml in eclipse project
+Edit the path to mydb to match the folder locationof myotherdb you have
+jdbc:derby://localhost:1527/c:/whateverfolder/myotherdb
+
+Configure server runtime:
+Window->preferences->Server->runtime environments
+Click add button -> choose tomcat8 -> select tomcat 8 folder -> finish
+
+Right click project -> properties -> java build path-> libraries tab
+Select the jdk -> edit button -> select jdk 7 from your alternate jdk dropdown
+If error in pom.xml
+right click project->maven->update project->select "Force update" -> ok
+

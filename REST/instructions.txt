@@ -1,3 +1,6 @@
+https://www.dropbox.com/sh/tfkx4p6p88s33yi/AACuS5wf2hNU896D8KEU3smAa?dl=0
+https://www.dropbox.com/sh/tw17onrj7ua3arp/AAAKnq1oOFDL5mqSiCFn-Kaka?dl=0
+
 Download  db-derby-10.11.1.1-bin.zip, myotherdb.zip, REST/RestSample.zip
 Unzip db-derby-10.11.1.1-bin.zip in some folder
 Unzip myotherdb.zip in some folder

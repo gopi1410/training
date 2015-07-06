@@ -14,3 +14,73 @@ Now right click project->properties->java build path->click on "libraires" tab
 Click "Add Library" -> Server runtime -> select the tomcat server listed there
 Now look at the PDF and create a servlet in a package such as com.mydomain.servlets
 Right click the servlet -> run as -> run on server
+
+Run tomcat on command line
+-----------------------------------------
+open command prompt
+Change directory to your tomcat\bin folder
+set JAVA_HOME=c:\program files\java\jdk8
+(Make sure u put a proper existing folder path above)
+type the command: startup.bat
+It should popup a window that should stay open. Make sure eclipse server is stopped.
+Now open browser and access "http://localhost:8080/"
+
+-----------------------------------------
+Create two html files
+Form.html - pick up form code from the PDF
+thankyou.html - Just some text such as <h2> Thank you for the info </h2>
+
+Put these HTMLs into WebContent folder
+You will be able to access these HTMLs from url
+example: http://localhost:8080/Training/Form.html
+
+Then try the servlet in Slide 15 of the PDF as a new servlet
+Make sure the action="" attribute of the form points the servlet url
+
+Change this:
+request.getRequestDispatcher("thankyou.html").forward(request, response);
+
+TO this:
+
+response.sendRedirect("thankyou.html");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

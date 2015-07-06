@@ -1,0 +1,16 @@
+Download: JEEWeb.pdf from github.com/maruthirj/training
+Download: db-derby-10.11.1.1-bin.zip
+Download: mydb.zip
+
+Instructions to build the first servlet:
+----------------------------------------
+Unzip tomcat in some folder
+Launch eclipse and create a new "Dynamic Web Project"
+Click on "Window"->"Preferences"-> server -> runtime environments
+Click on "Add" button to add the tomcat server.
+Specify the folder where you unzipped tomcat
+
+Now right click project->properties->java build path->click on "libraires" tab
+Click "Add Library" -> Server runtime -> select the tomcat server listed there
+Now look at the PDF and create a servlet in a package such as com.mydomain.servlets
+Right click the servlet -> run as -> run on server

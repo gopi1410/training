@@ -69,9 +69,100 @@ For loops in JSP
 Thank you for submitting your data <%=request.getAttribute("name") %>
 <% } %>
 
+Instructions to build user listing:
+----------------------------------------
+Download UserManager.java and User.java from github
+
+Place these classes in your eclipse project 
+Edit UserManager.java to change the database connection url like this:
+jdbc:derby://localhost:1527/c:/whereever/mydb/mydb
+
+Copy derbyclient.jar from db-derby-10.11.1.1-bin\lib into WebContent\WEB-INF\lib
+
+Create a new servlet called "ListUsersServlet" with @WebServlet("/ListUsers")
+In the doGet method, call UserManager.getAllUsers()
+The resultant list, set it as a request attribute and forward to "ListUsers.jsp"
+
+Create a new JSP called ListUsers.jsp
+get the users from request using something like this:request.getAttribute("users")
+Now loop thru the users and render User name and Age in table structure
+Use scriptlets and expressions to loop thru
+
+On browser access http://localhost:8080/Training/ListUsers and it should show a 
+list of users on screen from database
+protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	try{
+		UserManager u = new UserManager();
+		List<User> users = u.getAllUsers();
+		request.setAttribute("users",users);
+		request.getRequestDispatcher("ListUsers.jsp").forward(request, response);
+	}catch(Exception e){
+		throw new ServletException(e);
+	}
+}
 
 
+<%@page import="com.mydomain.model.User"%>
+<table>
+<tr><td>Name</td><td>Age</td></tr>
+<% List<User> users = (List<User>)request.getAttribute("users"); 
+	for(User u : users){
+%>
+<tr><td><%=u.getName()%></td><td><%=u.getAge()%></td></tr>
+<% } %>
+</table>
 
+Add a new user
+------------------------------------------
+Create a new jsp called "userForm.jsp"
+It should have a form with fields "name" and "age" and a submit button
+Create a link on the ListUsers.jsp to this new jsp
+<a href="userForm.jsp">Add User</a>
+
+Create a new servlet called "UserAddServlet" 
+@WebServlet("/userAdd")
+In the doPost method accept the name and age parameter, create a user object
+and call UserManager's addUser() method
+After adding, forward to /ListUsers servlet
+//WRONG: request.getRequestDispatcher("/ListUsers").forward(req,res);
+response.sendRedirect("ListUsers");
+
+put this method in ListServlet
+
+protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+	doGet(req,resp);
+}
+
+Change the userForm.jsp to send the request to this new servlet
+action="userAdd"
+
+Edit a new user
+------------------------------------------
+Create a link next to each user in the table for editing the user
+This link should go to the LoadServlet and have the id param
+<a href="LoadUser?id=<%=u.getId()%>">Edit</a>
+
+Create a new servlet LoadServlet @WebServlet("/LoadUser")
+doGet()...
+	Integer id = Integer.parseInt(request.getParameter("id"));
+	User u = (new UserManager()).getUser(id);
+	request.setAttribute("user", u);
+	request.getRequestDispatcher("UserForm.jsp").forward(request, response);
+
+Modify UserForm.jsp to hold the id of the user in a hidden field
+<% User u = (User)request.getAttribute("user"); 
+if (u==null){
+	u = new User();
+}else{%>
+	<input type="hidden" value="<%=u.getId()%>" name="id"></input>
+<%}%>
+Name: <input type="text" name="name" value="<%=u.getName()%>"></input><br>
+Age: <input type="text" name="age" value="<%=u.getAge()%>"></input><br>
+
+
+Modify AddServlet to check "id" parameter. If available it should 
+call UserManager's updateUser(), else call addUser()
 
 
 

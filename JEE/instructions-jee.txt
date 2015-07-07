@@ -44,6 +44,31 @@ TO this:
 
 response.sendRedirect("thankyou.html");
 
+-----------------------------------------
+Create a wizard
+Form.html posts name and address to Servlet1
+Servlet1 code is on page 12 of JEEWebNotes.pdf
+When that UI is submitted, it goes to Servlet2
+Servlet2 code is on page 13.
+
+Change servlet2 to render the name and phone number to response instead of
+forwarding to thankyou.html
+-----------------------
+
+Steps to start database:
+
+open windows command prompt
+cd c:\whereeverYouUnzippedDerby\db-derby-10.11.1.1-bin\bin
+set DERBY_HOME=..\
+setNetworkServerCP
+startNetworkServer
+
+For loops in JSP
+----------------------------------------
+<%for(int i=0; i< 10; i++){ %>
+Thank you for submitting your data <%=request.getAttribute("name") %>
+<% } %>
+
 
 
 

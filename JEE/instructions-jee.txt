@@ -160,10 +160,20 @@ if (u==null){
 Name: <input type="text" name="name" value="<%=u.getName()%>"></input><br>
 Age: <input type="text" name="age" value="<%=u.getAge()%>"></input><br>
 
-
 Modify AddServlet to check "id" parameter. If available it should 
 call UserManager's updateUser(), else call addUser()
 
+User u = new User();
+if(request.getParameter("id")!=null)
+	u.setId(Integer.parseInt(request.getParameter("id")));
+u.setName(request.getParameter("name"));
+u.setAge(Integer.parseInt(request.getParameter("age")));
+UserManager mgr = new UserManager();
+if(u.getId()==null){
+	mgr.addUser(u);	
+}else{
+	mgr.updateUser(u);
+}
 
 
 

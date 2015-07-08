@@ -188,10 +188,37 @@ doGet()...
 	mgr.deleteUser(id);
 	response.sendRedirect("listServlet");
 
+Download 3 jar files + web.xml + error.jsp from github
+Place the web.xml in WebContent\WEB-INF
+Place the jar files in WebContent\WEB-INF\lib
+Place the error.jsp in WebContent 
 
+Make a code error to perpetually cause some null pointer error
+Restart server and cause the error
+-------------------------------------------
+Filter
 
+In web.xml create a filter definition above the error pages section
+<filter>
+    <filter-name>TestFilter</filter-name>
+    <filter-class>com.mydomain.MyTestFilter</filter-class>
+</filter>
+<filter-mapping>
+    <filter-name>TestFilter</filter-name>
+    <url-pattern>/list*</url-pattern>
+</filter-mapping>
 
+Create a new class MyTestFilter:
+public class MyTestFilter implements Filter {
+	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
+		System.out.println("Filter Before");
+		chain.doFilter(request, response);
+		System.out.println("Filter After");
+	}
+}
+Put System.out.println() in your ListUserServlet and ListUsers.jsp
 
+Access the user listing page and see the order of the print outs on console
 
 
 

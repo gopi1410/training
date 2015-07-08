@@ -205,7 +205,7 @@ In web.xml create a filter definition above the error pages section
 </filter>
 <filter-mapping>
     <filter-name>TestFilter</filter-name>
-    <url-pattern>/list*</url-pattern>
+    <url-pattern>/*</url-pattern>
 </filter-mapping>
 
 Create a new class MyTestFilter:
@@ -218,9 +218,37 @@ public class MyTestFilter implements Filter {
 }
 Put System.out.println() in your ListUserServlet and ListUsers.jsp
 
-Access the user listing page and see the order of the print outs on console
+Access the user listing page and see the order of the printouts on console
+--------------------------------
+User Auth with Filters
 
+Create a new JSP loginForm.jsp with only a userName field
+Create a new servlet LoginServlet. This accepts the userName parameter, calls the
+UserManager.doesUserExist function. 
+If true, 
+	set userName as a session attribute and redirect to ListServlet, 
+else
+	FORWARD to loginForm.jsp
+String name = request.getParameter("name");
+UserManager um = new UserManager();
+User u = um.doesUserExist(name);
+if (u != null) {
+	request.getSession().setAttribute("user", u);
+	response.sendRedirect("listServlet");
+}else{
+	request.getRequestDispatcher("loginPage.jsp").forward(req,res);
+}
+Modify MyTestFilter:
 
+HttpServletRequest req = (HttpServletRequest)request;
+HttpServletResponse res = (HttpServletResponse)response;
+Object u = req.getSession().getAttribute("user");
+if(u!=null || req.getRequestURI().contains("LoginServlet") 
+	|| req.getRequestURI().contains("loginForm")){
+	chain.doFilter(request, response);
+}else{
+	res.sendRedirect("loginPage.jsp");
+}
 
 
 

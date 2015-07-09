@@ -249,9 +249,28 @@ if(u!=null || req.getRequestURI().contains("LoginServlet")
 }else{
 	res.sendRedirect("loginPage.jsp");
 }
+---------------------------------------
+RMI:
+-------------------------------------
+Open a command window
+Change to the folder where the classes of your project is generated
+cd ProjectFolder\build\classes
+Run these commands: 
+set path="C:\program files\java\jdk...\bin";%path%
+set classpath=.
+rmiregistry
 
+Get back to eclipse
+RMIServer -> right click -> Run as Java application
+RMIClient -> right click -> Run as Java application
 
+-------------------------------------
+File upload:
+in the UserForm, add a new field to upload user's profile picture
+<input type="file" name="pic"></input>
 
+Submit this form during use addition and observe the data that is sent to the 
+server in the BROWSER developer console
 
 
 

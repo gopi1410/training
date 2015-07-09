@@ -271,6 +271,58 @@ in the UserForm, add a new field to upload user's profile picture
 
 Submit this form during use addition and observe the data that is sent to the 
 server in the BROWSER developer console
+------------------------------------
+Eclipse -> Help -> install new software
+Click add button:
+Name: JBoss
+Location: http://download.jboss.org/jbosstools/updates/stable/luna/
+
+Select: Jboss Web and Java EE Development -> JBoss AS Tools
+
+http://107.108.70.17:8080/WebProfile/jboss-as-7.1.0.Final.zip
+-------------------------------------------
+REST Project 
+Download tomcat 8 and unzip in some folder
+In eclipse create a new Maven project.
+While creating the project, 
+select "maven-archetype-webapp" as the archetype
+Specify "RestSample" as the groupId and artifactId
+Finish
+
+Pick up REST\pom.xml from github
+Copy the "dependencies" section from that xml into the pom.xml in your eclipse project
+
+Now setup integration with tomcat8
+Eclipse->window->preferences->server->runtime environments->add
+Select apache tomcat8, specify the folder where you unzipped tomcat
+
+Now right click project->run on server-> choose tomcat8 to run 
+
+Pickup RestApplication.java from github 
+Create a new class called UserResource
+
+@Path("/users")
+public class UserResource {
+	@GET
+	@Path("/{param}")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public User getUser(@PathParam("param") Integer id) {
+		//Get one user based on id
+	}
+
+	@GET
+	@Produces({ MediaType.APPLICATION_JSON })
+	public List<User> getUsers() {
+		//get all users
+	}
+}
+
+Deploy app and test by accessing the url:
+http://localhost:8080/RestSample/services/users
+and
+http://localhost:8080/RestSample/services/users/300
+
+
 
 
 

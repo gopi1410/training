@@ -379,6 +379,128 @@ Obtain connection using datasource in EJB's business method:
 ...
 ...
 	con.close();
+---------------------------------------------
+Bulk delete changes for listUser servlet
+
+<form action="bulkDelete">
+	<%
+	List<User> users = (List<User>)request.getAttribute("users");
+	for(User user: users){
+	%>
+	<tr>
+	<td><input type="checkbox" name="selectedIds" value="<%=user.getId()%>"/></td>
+	<td><%=user.getName()%></td><td><%=user.getAge() %></td>
+	<td><a href="deleteServlet?id=<%=user.getId()%>">Delete</a></td>
+	<td><a href="loadForEditServlet?id=<%=user.getId()%>">Edit</a></td>
+	</tr> 
+<%
+}
+%>
+	<input type="submit" value="Delete Selected"/>
+</form>
+
+IN BULK DELETE SERVLET - doGet method:
+--------
+String[] idStrArr = request.getParameterValues("selectedIds");
+List<Integer> ids = new ArrayList<Integer>();
+for (String idStr : idStrArr) {
+	Integer id = Integer.parseInt(idStr);
+	ids.add(id);
+}
+userManager.deleteUsers(ids);
+response.sendRedirect("listServlet");
+
+EJB Code:
+--------
+@EJB
+UserManagerLocal umLocal;
+
+@TransactionAttribute(TransactionAttributeType.REQUIRED)
+public void deleteUsers(List<Integer> ids){
+	for(Integer id: ids){
+		umLocal.deleteUser(id);
+		System.out.println("Deleting :"+id);
+		if(id%3==0){
+			throw new NullPointerException("Something went wrong");
+		}
+	}
+}
+@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+public void deleteUser(Integer id){
+	InitialContext ic = new InitialContext();
+	DataSource ds = (DataSource) ic.lookup("java:/DerbyDS");
+	con = dataSource.getConnection();
+	Statement st = con.createStatement();
+	st.execute("delete from users where id="+id);	
+	con.close();
+}
+
+SIX transaction attributes:
+---------------------------
+1. Does it run in a transaction?
+2. What happens to incoming transaction?
+
+MANDATORY
+1. Yes
+2. Expected Mandatorily, else exception
+NEVER
+1. No
+2. Exception if it exists
+NOT_SUPPORTED
+1. No
+2. Suspended
+REQUIRED
+1.Yes
+2.Continues if there is an incoming transaction
+REQUIRES_NEW
+1. Yes
+2. Suspended
+SUPPORTS 
+1. May be
+2. If exists, it runs in that transaction, else without transaction
+
+
+Transactions in JDBC
+--------------------
+con = DriverManager.getConnection();
+con.setAutoCommit(false);
+Statement st = con.createStatement();
+st.execute("delete from users where id="+id);	
+con.commit();
+con.close();
+
+--------------------
+Start a new EJB project
+Right click the project and create a new "Message Driven Bean"
+destination name: email_queue
+Destination type: queue
+This will create a new class with an onMessage method. Put this code in it
+public void onMessage(Message message) {
+	System.out.println("Processing Message: " + message);
+	TextMessage tm = (TextMessage) message;
+	System.out.println("Message : " + tm.getText());
+}
+
+Add as external jar jboss-as-7.1.1.Final/modules/javax/ejb/api/main
+						/jboss-ejb-api_3.1_spec-1.0.1.Final.jar
+					jboss-as-7.1.1.Final/modules/javax/jms/api/main
+						/jboss-jms-api_1.1_spec-1.0.0.Final.jar
+edit standalone-full.xml
+Find <jms-destinations> tag and configure a queue there by adding this section
+<jms-queue name="email_queue">
+	<entry name="queue/email_queue"/>
+    <entry name="java:jboss/exported/jms/queue/email_queue"/>
+</jms-queue>
+Stop JBOSS
+Export the project as an EJB jar and deploy it by copying it to deployments folder
+Start jboss with standalone-full confguration using a command like this:
+standalone.bat -c standalone-full.xml 
+
+Pick up MQClientServlet from github and deploy it and access it				
+
+
+
+
 
 
 

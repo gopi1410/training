@@ -300,14 +300,13 @@ Now right click project->run on server-> choose tomcat8 to run
 
 Pickup RestApplication.java from github 
 Create a new class called UserResource
-
 @Path("/users")
 public class UserResource {
 	@GET
 	@Path("/{param}")
 	@Produces({ MediaType.APPLICATION_JSON })
 	public User getUser(@PathParam("param") Integer id) {
-		//Get one user based on id
+		//Get one user based on id (Use UserManager from other project)
 	}
 
 	@GET
@@ -322,13 +321,64 @@ http://localhost:8080/RestSample/services/users
 and
 http://localhost:8080/RestSample/services/users/300
 
+Create a new method in UserResource to handle post requests
+@POST
+@Consumes({ MediaType.APPLICATION_JSON })
+public void createUser(User u) {
+	//Use userManager to save the new user
+}
 
+-----------------
+set JAVA_HOME=c:\program files\java\jdk1.7_25
+standalone.bat
 
+Create a new EJB inside the User listing project we already have
+Copy jboss-as-7.1.1.Final/modules/javax/ejb/api/main
+						/jboss-ejb-api_3.1_spec-1.0.1.Final.jar
+into WebContent/WEB-INF/lib
+In UserManagerLocal interface define 
+public List<User> getAllUsers() throws Exception;
 
+In UserManager EJB
+Implement the method getAllUsers
+Copy the database implementation code to getAllUsers
+public List<User> getAllUsers() throws Exception{
+		Statement statement = con.createStatement();
+		ResultSet rs = statement.executeQuery("select * from users");
+		List<User> users = new ArrayList<User>();
+		while(rs.next()){
+			...
+		}
+		return users;
+	}
 
+In ListUserServlet class, define a dependency like this:
+@EJB
+UserManagerLocal userManager;
 
+In doGet() method
+System.out.println(userManager);
+userManager.getAllUsers()
 
+Right click project->export war file
+Copy exported war file into jboss\standalone\deployments folder
+Start JBoss and make sure no exceptions occur.
+Access the web app user listing screen on browser and verify EJB calling
+--------------------------------------------
+Configure database connection pool 
+--------------------------------------------
+Deploy the derbyclient.jar in modules\org\apache\derby\main along 
+with a module.xml (Shared)
 
+Setup a driver and datasource segment in standalone.xml (Shared)
+
+Obtain connection using datasource in EJB's business method:
+	InitialContext ic = new InitialContext();
+	DataSource ds = (DataSource) ic.lookup("java:/DerbyDS");
+	con = ds.getConnection();
+...
+...
+	con.close();
 
 
 

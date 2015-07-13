@@ -25,6 +25,14 @@ Configure the xml
 <bean id="userDao" class="com.mydomain.dao.UserDaoImpl">
 </bean>
 
+
+This code goes into a new class called SpringTester (in main method)
+ApplicationContext context = new ClassPathXmlApplicationContext
+(new String[] {"application-context.xml"});
+UserManager mgr = (UserManager)context.getBean("userManager");
+List<User> users = mgr.getAllUsers();
+System.out.println(users);
+
 public class UserManager {
 
 	private UserDao dao;
@@ -39,11 +47,51 @@ public class UserManager {
 		return dao.getAllUsers();
 	}
 }
-This code goes into a new class called SpringTester (in main method)
-ApplicationContext context = new ClassPathXmlApplicationContext
-(new String[] {"application-context.xml"});
-UserManager mgr = (UserManager)context.getBean("userManager");
-List<User> users = mgr.getAllUsers();
-System.out.println(users);
 
+--------------------------------------------
+Proxy
+--------------------------------------------
+package com.mydomain;
+
+import java.lang.reflect.Method;
+import java.rmi.RemoteException;
+
+public class ProxyImpl implements java.lang.reflect.InvocationHandler {
+
+	private Object obj;
+
+	public static Object newInstance(Object obj) {
+		return java.lang.reflect.Proxy.newProxyInstance(obj.getClass()
+				.getClassLoader(), obj.getClass().getInterfaces(),
+				new ProxyImpl(obj));
+	}
+
+	private ProxyImpl(Object obj) {
+		this.obj = obj;
+	}
+
+	public Object invoke(Object proxy, Method m, Object[] args)
+			throws Throwable {
+		Object result;
+		try {
+			//do something before
+			System.out.println("Actions before invoke of: "+m.getName());
+			System.out.println(this);
+			result = m.invoke(obj, args);
+			System.out.println("Actions after method invoke...");
+			//do something after
+		} catch (Exception e) {
+			throw new RuntimeException("unexpected invocation exception: "
+					+ e.getMessage());
+		}
+		return result;
+	}
+
+	public static void main(String[] args) throws RemoteException {
+		UserDaoImpl target = new UserDaoImpl();
+		UserDao proxy = (UserDao)ProxyImpl.newInstance(target);
+		List<User> users = proxy.getAllUsers();
+		System.out.println("Users: "+users);
+	}
+}
 

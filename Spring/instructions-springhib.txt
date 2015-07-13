@@ -25,8 +25,23 @@ Configure the xml
 <bean id="userDao" class="com.mydomain.dao.UserDaoImpl">
 </bean>
 
+public class UserManager {
+
+	private UserDao dao;
+
+	public UserDao getDao() {
+		return dao;
+	}
+	public void setDao(UserDao dao) {
+		this.dao = dao;
+	}
+	public List<User> getAllUsers() {
+		return dao.getAllUsers();
+	}
+}
 This code goes into a new class called SpringTester (in main method)
-ApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"application-context.xml"});
+ApplicationContext context = new ClassPathXmlApplicationContext
+(new String[] {"application-context.xml"});
 UserManager mgr = (UserManager)context.getBean("userManager");
 List<User> users = mgr.getAllUsers();
 System.out.println(users);

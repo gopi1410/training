@@ -14,3 +14,21 @@ Copy the <dependencies> section from the shared pom.xml into the pom.xml in your
 Once you save the pom.xml all dependencies will be downloaded.
 If you see errors on pom.xml, 
 right click project -> maven -> update project -> force update -> ok
+
+Download application-context.xml, User.java from github
+Create two classes UserManager and UserDaoImpl and one interface UserDao
+Setup setter methods on UserManager to refer to UserDao
+Configure the xml
+<bean id="userManager" class="com.mydomain.biz.UserManager">
+	<property name="dao" ref="userDao"></property>    
+</bean>
+<bean id="userDao" class="com.mydomain.dao.UserDaoImpl">
+</bean>
+
+This code goes into a new class called SpringTester (in main method)
+ApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"application-context.xml"});
+UserManager mgr = (UserManager)context.getBean("userManager");
+List<User> users = mgr.getAllUsers();
+System.out.println(users);
+
+

@@ -90,8 +90,41 @@ public class ProxyImpl implements java.lang.reflect.InvocationHandler {
 	public static void main(String[] args) throws RemoteException {
 		UserDaoImpl target = new UserDaoImpl();
 		UserDao proxy = (UserDao)ProxyImpl.newInstance(target);
+		System.out.println(proxy.getClass().getName());
 		List<User> users = proxy.getAllUsers();
 		System.out.println("Users: "+users);
 	}
 }
+-----------------------------------
+Steps to start database:
+
+open windows command prompt
+cd c:\whereeverYouUnzippedDerby\db-derby-10.11.1.1-bin\bin
+set DERBY_HOME=..\
+setNetworkServerCP
+startNetworkServer
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

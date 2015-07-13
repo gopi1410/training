@@ -1,0 +1,16 @@
+from http://github.com/maruthirj/training
+Download: db-derby-10.11.1.1-bin.zip
+Download: mydb.zip
+Download tomcat:
+http://107.108.53.191:8080/WebProj/tools/apache-tomcat-8.0.23-windows-x86.zip
+Download eclipse:
+http://107.108.206.119:8080/Training/eclipse.zip
+
+-----------------------------------------
+Create a new maven project in eclipse
+Download pom.xml from github (Use the "raw" button to download)
+Copy the <dependencies> section from the shared pom.xml into the pom.xml in your
+																			project
+Once you save the pom.xml all dependencies will be downloaded.
+If you see errors on pom.xml, 
+right click project -> maven -> update project -> force update -> ok

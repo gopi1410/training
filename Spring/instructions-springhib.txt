@@ -236,11 +236,54 @@ In application-context.xml define this configuration
 		<property name="secureBean" ref="secureDao"></property>
 	</bean>
 	
+	<bean id="userManager" class="com.mydomain.biz.UserManager">
+		<property name="dao" ref="authenticatedDao"></property>    
+	</bean>
+
+	
 In main method:
 
-UserDao authDao = (UserDao)context.getBean("authenticatedDao");
-System.out.println(authDao.getAllUsers());
+UserManager mgr = (UserManager)context.getBean("userManager");
+List<User> users = mgr.getAllUsers();
+------------------------------
+Using post processor to secure the beans
 
+Create a new annotation class in Secure.java
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Secure {
+
+}
+
+Define a secure bean post processor:
+
+public class SecurityBeanPostProcessor implements BeanPostProcessor {
+	public Object postProcessBeforeInitialization(Object bean, String beanName)
+			throws BeansException {
+		if (bean.getClass().isAnnotationPresent(Secure.class) ) {
+			return AuthProxyImpl.newInstance(bean);
+		} else {
+			return bean;
+		}
+	}
+	public Object postProcessAfterInitialization(Object bean, String beanName)
+			throws BeansException {
+		return bean;
+	}
+}
+
+Put the @Secure annotation on UserDaoImpl class
+
+Define this in the application-context.xml:
+<bean name="dao" class=“com.mydomain.dao.UserDaoImpl"></bean>
+<bean class="com.mydomain.security.SecurityBeanPostProcessor"></bean>
+
+	
+<bean id="authenticatedDao" name="authenticatedDao" 		
+					class="com.mydomain.security.ClientProxyFactory">
+		<property name="secureBean" ref="dao"></property>
+</bean>
+
+Test by invoking the same old client code that calls UserManager
 
 
 

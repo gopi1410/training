@@ -324,7 +324,52 @@ Enable AOP auto config:
 <context:annotation-config />
 <aop:aspectj-autoproxy/>
 
+In UserManager::getAllUsers(){
+	System.out.println("DAO = "+dao.getClass().getName());
+	....
+}
 
+In main()
+UserManager mgr = (UserManager)context.getBean("userManager");
+System.out.println("MGR = "+mgr.getClass().getName());
+List<User> users = mgr.getAllUsers();
+
+---------------------------------------------------
+Custom Tx Manager
+------------------
+Create a new class called CustomTxManager as an aspect
+@Component
+@Aspect
+public class CustomTxManager {
+}
+define a getConnection() method:
+	private Connection getConnection() throws Exception{
+			Class.forName("org.apache.derby.jdbc.ClientDriver");
+			return DriverManager.getConnection("jdbc:derby://localhost:1527/c:/mydb");	
+	}
+	
+Define :
+public static ThreadLocal<Connection> threadLocalConnections = new ThreadLocal<>();
+
+In this class define a method to be around advice:
+	@Around("execution(public * com.mydomain.UserDao.*(..))”)
+    public Object startTransactions(ProceedingJoinPoint pjp) throws Throwable {
+		Connection con = getConnection();
+		con.setAutoCommit(false);
+		Object result=null;
+		try{
+			threadLocalConnections.set(con);
+			result = pjp.proceed();
+			con.commit();
+		}finally{
+			threadLocalConnections.get().close();			
+		}
+		return result;
+	}
+
+In UserDAO.getAllUsers()
+	Connection con = CustomTxManager.threadLocalConnections.get();
+	...
 
 
 

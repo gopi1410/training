@@ -144,6 +144,34 @@ if(m.getName().equals("secureInvoke")){
 Our client code will now be like this:
 UserDaoImpl daoImpl = new UserDaoImpl();
 UserDao secureDao = (UserDao)AuthProxyImpl.newInstance(daoImpl);
+secureDao.getAllUser();//Will throw an exception
+
+
+Method getAllUsers = UserDao.class.getMethod("getAllUsers");
+AuthEnabler ae = (AuthEnabler)AuthProxyImpl.newInstance(daoImpl);
+System.out.println(ae.secureInvoke(getAllUsers,"admin","admin123"));
+--------------------
+Copy the ProxyImpl class and create a new class called ClientProxyImpl
+In the newInstance method, make a check to ensure we are proxying the authproxy
+public static Object newInstance(Object obj) {
+	if(!(obj instanceof AuthEnabler)){
+		throw new IllegalArgumentException("This class can only proxy Auth Enabled classes");
+	}
+	return java.lang.reflect.Proxy.newProxyInstance(obj.getClass()
+				.getClassLoader(), obj.getClass().getInterfaces(),
+				new ProxyImpl(obj));
+}
+
+In the invoke method, make sure we are only calling target methods:
+if(m.getName().equals("secureInvoke")){
+	//This should never be called directly
+	throw new IllegalStateException("Secure invoke should not be called on the client proxy directly. Call the target method");
+}else{
+	//Grab auth info and call the secureInvoke method on the target
+	String user = "admin";
+	String pass = "admin123";
+	return ((AuthEnabler)obj).secureInvoke(m, user, pass, args);
+}
 
 
 

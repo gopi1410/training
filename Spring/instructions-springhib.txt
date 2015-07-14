@@ -173,8 +173,73 @@ if(m.getName().equals("secureInvoke")){
 	return ((AuthEnabler)obj).secureInvoke(m, user, pass, args);
 }
 
+Client:
+-------
+UserDaoImpl daoImpl = new UserDaoImpl();
+UserDao secureDao = (UserDao)AuthProxyImpl.newInstance(daoImpl);
+UserDao clientDao = (UserDao)ClientProxyImpl.newInstance(secureDao);
+System.out.println(clientDao.getAllUsers());
 
+Using Factory Beans in spring
+------------------------------
+Create an AuthProxyFactory class
+public class AuthProxyFactory implements FactoryBean {
+	//Secure bean that needs proxying to pass the security info
+	Object beanToSecure;
+	public Object getBeanToSecure() {
+		return beanToSecure;
+	}
+	public void setBeanToSecure(Object beanToSecure) {
+		this.beanToSecure = beanToSecure;
+	}
+	public Object getObject() throws Exception {
+		return AuthProxyImpl.newInstance(beanToSecure);
+	}
+	public Class getObjectType() {
+		return null;
+	}
+	public boolean isSingleton() {
+		return true;
+	}
+}
 
+Create a ClientProxyFactory class
+public class ClientProxyFactory implements FactoryBean {
+	//Secure bean that needs proxying to pass the security info
+	Object secureBean;
+	public Object getSecureBean() {
+		return secureBean;
+	}
+	public void setSecureBean(Object secureBean) {
+		this.secureBean = secureBean;
+	}
+	public Object getObject() throws Exception {
+		return ClientProxyImpl.newInstance(secureBean);
+	}
+	public Class getObjectType() {
+		return null;
+	}
+	public boolean isSingleton() {
+		return true;
+	}
+}
+
+In application-context.xml define this configuration
+<!-- Secure Bean Setup -->
+	<bean name="dao" class="com.mydomain.dao.UserDaoImpl"></bean>
+	<bean name="secureDao" class="com.mydomain.security.AuthProxyFactory">
+		<property name="beanToSecure" ref="dao"></property>
+	</bean>
+	
+	<bean id="authenticatedDao" name="authenticatedDao" 		
+					class="com.mydomain.security.ClientProxyFactory">
+		<property name="secureBean" ref="secureDao"></property>
+	</bean>
+	
+In main method:
+
+UserDao authDao = (UserDao)context.getBean("authenticatedDao");
+System.out.println(authDao.getAllUsers());
 
 
 

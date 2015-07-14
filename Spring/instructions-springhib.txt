@@ -284,6 +284,51 @@ Define this in the application-context.xml:
 </bean>
 
 Test by invoking the same old client code that calls UserManager
+-------------------------------------------------
+Creating aspects
+Create a new class called LoggingAspect
+@Component
+@Aspect
+public class LoggingAspect {
+
+	
+	@Before( value="execution(* getAll*(..))")
+    public void logMethodCallstart(JoinPoint joinPoint) {
+		System.out.println("Executing before method: "+joinPoint.getSignature().getName());
+    }
+	
+	@AfterReturning(returning="retVal", value="execution(* getAll*(..))")
+    public void logMethodCallEnd(Object retVal) {
+		System.out.println("returning Value: "+retVal);
+    }
+	
+	@AfterThrowing(throwing="exception",value="execution(* getAll*(..))")
+	public void logErrors(Throwable exception){
+		System.out.println("Error happened: "+exception);
+	}
+	
+	@Around("execution(* getAll*(..))")
+    public Object doBasicProfiling(ProceedingJoinPoint pjp) throws Throwable {
+        long start = System.nanoTime();
+        Object retVal = pjp.proceed();
+        long end = System.nanoTime();
+        System.out.println("Time taken(ms): "+(end-start)/1000);
+        return retVal;
+    }
+}
+
+In application-context.xml
+Disable SecureBeanPostprocessor and ClientProxyFactory
+Enable AOP auto config:
+<context:component-scan base-package="com.mydomain.*" />
+<context:annotation-config />
+<aop:aspectj-autoproxy/>
+
+
+
+
+
+
 
 
 

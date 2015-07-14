@@ -104,6 +104,47 @@ set DERBY_HOME=..\
 setNetworkServerCP
 startNetworkServer
 
+Replace the DAO implementation with the one provided on share
+Edit the connection information to look like this:
+(NOTICE THE SINGLE SLASH AFTER 1527)
+jdbc:derby://localhost:1527/C:/whereever/mydb/mydb
+
+Test it and you should see actual user objects retrieved from the DB
+
+Securing UserDAOImpl
+-------------------------------------------
+Create an interface:
+public interface AuthEnabler {
+	public Object secureInvoke(Method m, String user, String password, Object... args);
+}
+
+Copy the ProxyImpl class you have and create a new class AuthProxyImpl
+In the newInstance method, use code like this to get a list of interfaces:
+List<Class> interfaces = new ArrayList(Arrays.asList(obj.getClass().getInterfaces()));
+interfaces.add(AuthEnabler.class);
+Class[] classArr = interfaces.toArray(new Class[1]);
+
+In the invoke method, we do authentication like this:
+if(m.getName().equals("secureInvoke")){
+	//Perform auth and call the target method
+	Method targetMethod = (Method)args[0];
+	String user = (String)args[1];
+	String pass = (String)args[2];
+	if(user.equals("admin") && pass.equals("admin123")){
+		Object[] methodArgs = Arrays.copyOfRange(args, 3, args.length-1);
+		return targetMethod.invoke(obj, methodArgs);	
+	}else{
+		throw new Exception("Authentication info denied");
+	}
+}else{
+	//Direct method invocation - prevent it
+	throw new Exception("Authentication info not provided");
+}
+
+Our client code will now be like this:
+UserDaoImpl daoImpl = new UserDaoImpl();
+UserDao secureDao = (UserDao)AuthProxyImpl.newInstance(daoImpl);
+
 
 
 

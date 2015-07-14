@@ -370,8 +370,31 @@ In this class define a method to be around advice:
 In UserDAO.getAllUsers()
 	Connection con = CustomTxManager.threadLocalConnections.get();
 	...
+---------------------------------
+Make UserDaoImpl an abstract class like this with a lookup method:
+public abstract class UserDaoImpl implements UserDao {
+	
+	public abstract Connection getCon();
+	
+	public List<User> getAllUsers() throws Exception{
+		Statement statement = getCon().createStatement();
+		...
 
+Define a new FactoryBean that will read the connection from the threadlocal
 
+public class CustomTxConnectionFactory implements FactoryBean<Connection>{
+
+	public Connection getObject() throws Exception {
+		return CustomTxManager.threadLocalConnections.get();
+	}
+...
+
+Configure the beans in XML:
+<bean name="dao" class="com.mydomain.dao.UserDaoImpl">
+	<lookup-method name="getCon" bean="connection" />
+</bean>
+	
+<bean name="connection" class=“com.mydomain.aop.CustomTxConnectionFactory” scope="prototype"/>
 
 
 

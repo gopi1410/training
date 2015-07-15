@@ -395,8 +395,46 @@ Configure the beans in XML:
 </bean>
 	
 <bean name="connection" class=“com.mydomain.aop.CustomTxConnectionFactory” scope="prototype"/>
+-------------------------------------
+Spring MVC App
+-------------------------------------
+Create a new Maven project by selecting the archetype "maven-archetype-webapp"
+Insert the dependencies from the pom.xml provided on github
+Next is to configure the Dispatcher servlet into web.xml thus:
+<servlet>
+	<servlet-name>action</servlet-name>
+	<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+	<load-on-startup>1</load-on-startup>
+</servlet>
+<servlet-mapping>
+	<servlet-name>action</servlet-name>
+	<url-pattern>/action/*</url-pattern>
+</servlet-mapping>
 
+Create a new class called HelloWorldController in some package
 
+@Controller
+public class HelloWorldController {
+
+    @RequestMapping("/helloWorld")
+    public String helloWorld(Model model) {
+        model.addAttribute("message", "Hello World!");
+        return “/helloWorld”;
+    }
+}
+
+helloWorld.jsp - put this in WEB-INF\Views folder (this folder needs to be created)
+<%@ page isELIgnored="false"%>
+<h2>${message}</h2>
+
+Copy application-context.xml from the previous project and place it in WEB-INF
+folder. Rename it as action-servlet.xml.
+Add this section into it:
+<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+	<property name="prefix" value="/WEB-INF/Views/" />
+	<property name="suffix" value=".jsp" />
+</bean>
 
 
 

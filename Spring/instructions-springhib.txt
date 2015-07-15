@@ -485,7 +485,59 @@ Bring in the UserManager, UserDao, User related classes from other project
 Make sure UserManager and UserDaoImpl has @component and @AutoWired annotations
 Test by accessing this url: http://localhost:8080/WebApp/action/userForm
 
+----------------------------------------------
+Controller:
+@RequestMapping("/listUsers")
+    public String listUsers(Model model) throws Exception{
+    	List<User> users = userManager.getAllUsers();
+    	model.addAttribute("users",users);
+    	return "ListUsers";
+    }
+    
+User ListUsers.jsp:
+<table>
+<%
+List<User> users = (List<User>)request.getAttribute("users");
+for(User user: users){
+%>
+<tr><td></td><td><%=user.getName()%></td><td><%=user.getAge() %></td><td></tr> 
+<%
+}
+%>
+</table>
 
+---------------------------------------------
+JSON Data from spring controller
+
+Create a controller method of this kind
+@RequestMapping(value="/listUsersJson", produces = MediaType.APPLICATION_JSON_VALUE)
+@ResponseBody
+public String listUsersJson() throws Exception{
+    	List<User> users = userManager.getAllUsers();
+    	String usersJson = JSONObject.valueToString(users);
+    	return usersJson;
+}
+In the index.jsp, create a button and onclick of the button, load the data
+
+<script type="text/javascript">
+
+function loadUsers(){
+	$.ajax(	{
+		url: 'listUsersJson',
+		method: 'get',
+		headers: { 'Accept': 'application/json' }, 
+		success: function(data) {
+			$("#userTable").html("");
+			for(var index in data){
+				var row = "<tr><td>"+data[index].name+"</td><td>"+data[index].age+"</td></tr>";
+				$("#userTable").append(row);
+			}
+		}
+	});
+}
+</script>
+<input type="button" onclick="loadUsers()" value="Load"></input>
+<div id="userTable">Data will load here...</div>
 
 
 

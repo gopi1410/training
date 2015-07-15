@@ -430,11 +430,62 @@ helloWorld.jsp - put this in WEB-INF\Views folder (this folder needs to be creat
 Copy application-context.xml from the previous project and place it in WEB-INF
 folder. Rename it as action-servlet.xml.
 Add this section into it:
+
+<context:component-scan base-package="com.mydomain.*" />
+<aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+<mvc:annotation-driven />
 <bean
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 	<property name="prefix" value="/WEB-INF/Views/" />
 	<property name="suffix" value=".jsp" />
 </bean>
+
+**Folder in WEB-INF/Views should have V in upper case
+**return value from Controller should match JSP name in case
+**base-package="com.mydomain.*" if your controller is in com.mydomain.controller pack
+** Url to test is http://localhost:8080/projectname/action/helloWorld
+** helloWorld in url should match helloWorld in RequestMapping annotation case sensitive
+
+MOVE helloWorld.jsp directly under webapp
+and change this:
+<property name="prefix" value="/" />
+
+<%
+	Enumeration<String> names =  request.getAttributeNames();
+	while(names.hasMoreElements()){
+		String name = names.nextElement();
+		System.out.println("Name: "+name+" Value: "+request.getAttribute(name));
+	}
+%>
+
+User addition:
+---------------
+Pickup userform.jsp from github
+put it in WEB-INF/Views folder
+Define a new controller - UserController
+@Controller
+public class UserController {
+	@Autowired
+	UserManager userManager;
+	
+	@RequestMapping("/userForm")
+	public String showUserForm(HttpServletRequest req){
+		return "UserForm";
+	}
+	
+    @RequestMapping("/addUser")
+    public String addUser(@Valid User u, BindingResult bindingResult, Model model) throws Exception {
+    	userManager.addUser(u);
+        model.addAttribute("message", "Added User!");
+        return "helloWorld";
+    }
+}
+
+Bring in the UserManager, UserDao, User related classes from other project
+Make sure UserManager and UserDaoImpl has @component and @AutoWired annotations
+Test by accessing this url: http://localhost:8080/WebApp/action/userForm
+
+
 
 
 

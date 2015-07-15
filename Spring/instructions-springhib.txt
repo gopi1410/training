@@ -474,7 +474,7 @@ public class UserController {
 	}
 	
     @RequestMapping("/addUser")
-    public String addUser(@Valid User u, BindingResult bindingResult, Model model) throws Exception {
+    public String addUser(User u, Model model) throws Exception {
     	userManager.addUser(u);
         model.addAttribute("message", "Added User!");
         return "helloWorld";

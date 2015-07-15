@@ -518,7 +518,7 @@ public String listUsersJson() throws Exception{
     	return usersJson;
 }
 In the index.jsp, create a button and onclick of the button, load the data
-
+<script type="text/javascript" src="../scripts/jquery-2.1.3.js"></script>
 <script type="text/javascript">
 
 function loadUsers(){
@@ -538,6 +538,8 @@ function loadUsers(){
 </script>
 <input type="button" onclick="loadUsers()" value="Load"></input>
 <div id="userTable">Data will load here...</div>
+
+Copy jquery-2.1.3.js from github to webapp\scripts folder
 
 
 

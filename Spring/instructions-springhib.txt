@@ -575,7 +575,8 @@ System.out.println(users);
 Run the original main method to load the UserManager
 Run the new main method to invoke the server as a client
 ----------------------
-Download Squirrel SQL client
+Download Squirrel SQL client:
+http://107.108.206.119:8080/Training/squirrel-sql-3.6-standard.jar
 Install it, Choose apache derby plugin while installing
 Launch Squirrel from start menu
 Click on Drivers tab on left hand side
@@ -594,6 +595,32 @@ password: app
 Click Test
 Then OK
 Double click the alias to open a view to the database
+------------------------------
+Hibernate Starter:
+
+Create a new Maven project (Skip archetype selection)
+Pickup the pom3.xml from github for dependencies
+Make sure you have a folder - src\main\java (Create if not there)
+Copy the existing User.java from the other projects
+Pickup hibernate.cfg.xml and users.hbm.xml from github
+Place both these XMLs in src\main\java
+Edit hibernate.cfg.xml
+	Change the location of your database
+	Change the location of the user.hbm.xml
+Create a new Java class with main method
+
+Configuration configuration = new Configuration().configure("hibernate.cfg.xml");
+         ServiceRegistry serviceRegistry
+             = new StandardServiceRegistryBuilder()
+                 .applySettings(configuration.getProperties()).build();
+SessionFactory sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+
+Session session = sessionFactory.openSession();
+List<User> userList = session.createQuery("select u from User u”).list();
+System.out.println(userList);
+session.close();
+
+Test it by running as Java application
 
 
 

@@ -675,12 +675,10 @@ public class Product {
 ---------------------------------------------
 Create Order java class to represent the order table
 public class Orders {
-
 	private Integer id;
 	private String shipToAddress;
 	private Integer orderValue;
 	private Integer userId;
-	
 }
 Create order.hbm.xml with the mapping information
 Add order.hbm.xml entry in hibernate.cfg.xml
@@ -696,6 +694,7 @@ o.setUserId(33);//Change this to an existing user id
 o.setShipToAddress("Bangalore");
 o.setOrderValue(44);
 ses.save(o);
+System.out.println("Order saved");
 User u = ses.createQuery("Select u from User u where u.id=33").uniqueResult();
 for(Order order: u.getOrders()){
 	System.out.println("Order Address: "+order.getShipToAddress());

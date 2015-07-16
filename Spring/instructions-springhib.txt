@@ -650,7 +650,7 @@ public class Product {
 	Include getter setter methods here
 }
 
-Session s1 = sessionFactory.openSession();
+		Session s1 = sessionFactory.openSession();
 		Session s2 = sessionFactory.openSession();
 		Transaction t1 = s1.beginTransaction();
 		Transaction t2 = s2.beginTransaction();
@@ -672,8 +672,35 @@ Session s1 = sessionFactory.openSession();
 		s1.close();
 		s2.close();
 		System.out.println("Done");
+---------------------------------------------
+Create Order java class to represent the order table
+public class Orders {
 
+	private Integer id;
+	private String shipToAddress;
+	private Integer orderValue;
+	private Integer userId;
+	
+}
+Create order.hbm.xml with the mapping information
+Add order.hbm.xml entry in hibernate.cfg.xml
+Modify User.hbm.xml by adding the section below:
+<set name="orders">
+	<key column="user_id" />
+	<one-to-many class="com.mydomain.model.Orders" />
+</set>
 
+Write code like this in main method to verify:
+Order o = new Order();
+o.setUserId(33);//Change this to an existing user id
+o.setShipToAddress("Bangalore");
+o.setOrderValue(44);
+ses.save(o);
+User u = ses.createQuery("Select u from User u where u.id=33").uniqueResult();
+for(Order order: u.getOrders()){
+	System.out.println("Order Address: "+order.getShipToAddress());
+}
+ses.close();
 
 
 

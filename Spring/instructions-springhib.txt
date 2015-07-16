@@ -551,7 +551,12 @@ public interface UserManagerRemote extends Remote{
 	...
 }
 
+UserManager implements UserManagerRemote{
+User implements Serializable{
+
 In application-context.xml we export this object as a remote service
+<bean id="userManager" class="com.mydomain.UserManager">
+</bean>
 <bean class="org.springframework.remoting.rmi.RmiServiceExporter">
     <property name="serviceName" value="UserManager"/>
     <property name="service" ref="userManager"/><!-- This is the bean name of the userManager bean -->
@@ -569,6 +574,30 @@ System.out.println(users);
 
 Run the original main method to load the UserManager
 Run the new main method to invoke the server as a client
+----------------------
+Download Squirrel SQL client
+Install it, Choose apache derby plugin while installing
+Launch Squirrel from start menu
+Click on Drivers tab on left hand side
+Select "apache derby client" and click on the pencil icon on top to edit it
+Click on "Extra classpath" tab and click "Add" button
+Select derbyclient.jar from the already available db-derby-10.11.1.1-bin\lib folder
+Click ok
+
+Creating an alias:
+Click on aliases tab and click the plus icon to add a new alias
+Give any name
+JDBC URL - copy from the code (DAO class).
+jdbc:derby://localhost:1527/c:/whereever/mydb
+Username: APP
+password: app
+Click Test
+Then OK
+Double click the alias to open a view to the database
+
+
+
+
 
 
 

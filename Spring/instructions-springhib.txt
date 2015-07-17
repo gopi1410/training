@@ -723,9 +723,50 @@ Code to try this relationship:
      			
 ses = sesFactory.openSession();
 Order o = ses.createQuery("select o from Order o where o.id=22").uniqueResult();
-System.out.println(o.getUser().getId());
-System.out.println(o.getUser().getName());
 ses.close();
+System.out.println(o.getUser().getId());
+System.out.println(o.getUser().getClass().getName());
+System.out.println(o.getUser().getName());
+
+---------------------------------------
+Import HibernateWebApp.zip as an eclipse project
+Edit the UserDao.java to change the database url in the static block
+Run the application on server
+Access http://localhost:8080/HibernateWebApp/listServlet
+	We should see a user listing
+	
+Copy Hibernate.cfg.xml, User.hbm.xml and Orders.hbm.xml into src/main/java
+Create a new class called HibernateUtil and use it to build session factory:
+
+public class HibernateUtil {
+
+	private static SessionFactory sesFac = null;
+
+	static{
+		 Configuration configuration = new Configuration().configure("hibernate.cfg.xml");
+         ServiceRegistry serviceRegistry
+             = new StandardServiceRegistryBuilder()
+                 .applySettings(configuration.getProperties()).build();
+        sesFac = configuration.buildSessionFactory(serviceRegistry);
+	}
+}
+
+Change UserDao::getAllUsers method to use hibernate to load users only
+ses = HibernateUtil.sesFac.openSession()
+List<User> users = ses.createQuery("Select u from User u").list();
+ses.close();
+return users;
+
+Uncomment the line from User.java
+public Integer getOrderCount() {
+		return orders.size();
+}
+
+
+
+
+
+
 
 
 

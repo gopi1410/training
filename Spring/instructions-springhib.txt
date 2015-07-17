@@ -551,7 +551,12 @@ public interface UserManagerRemote extends Remote{
 	...
 }
 
+UserManager implements UserManagerRemote{
+User implements Serializable{
+
 In application-context.xml we export this object as a remote service
+<bean id="userManager" class="com.mydomain.UserManager">
+</bean>
 <bean class="org.springframework.remoting.rmi.RmiServiceExporter">
     <property name="serviceName" value="UserManager"/>
     <property name="service" ref="userManager"/><!-- This is the bean name of the userManager bean -->
@@ -569,6 +574,198 @@ System.out.println(users);
 
 Run the original main method to load the UserManager
 Run the new main method to invoke the server as a client
+----------------------
+Download Squirrel SQL client:
+http://107.108.206.119:8080/Training/squirrel-sql-3.6-standard.jar
+Install it, Choose apache derby plugin while installing
+Launch Squirrel from start menu
+Click on Drivers tab on left hand side
+Select "apache derby client" and click on the pencil icon on top to edit it
+Click on "Extra classpath" tab and click "Add" button
+Select derbyclient.jar from the already available db-derby-10.11.1.1-bin\lib folder
+Click ok
+
+Creating an alias:
+Click on aliases tab and click the plus icon to add a new alias
+Give any name
+JDBC URL - copy from the code (DAO class).
+jdbc:derby://localhost:1527/c:/whereever/mydb
+Username: APP
+password: app
+Click Test
+Then OK
+Double click the alias to open a view to the database
+------------------------------
+Hibernate Starter:
+
+Create a new Maven project (Skip archetype selection)
+Pickup the pom3.xml from github for dependencies
+Make sure you have a folder - src\main\java (Create if not there)
+Copy the existing User.java from the other projects
+Pickup hibernate.cfg.xml and users.hbm.xml from github
+Place both these XMLs in src\main\java
+Edit hibernate.cfg.xml
+	Change the location of your database
+	Change the location of the user.hbm.xml
+Create a new Java class with main method
+
+Configuration configuration = new Configuration().configure("hibernate.cfg.xml");
+         ServiceRegistry serviceRegistry
+             = new StandardServiceRegistryBuilder()
+                 .applySettings(configuration.getProperties()).build();
+SessionFactory sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+
+Session session = sessionFactory.openSession();
+List<User> userList = session.createQuery("select u from User u”).list();
+System.out.println(userList);
+session.close();
+
+Test it by running as Java application
+----------------------------------
+<class name="com.mydomain.model.Products" table="PRODUCTS">
+		<id name="id" type="int">
+			<column name="ID" />
+			<generator class="native" />
+		</id>
+		<version column="version" name="version" type="int" insert="true" />
+		<property name="productName" >
+			<column name="PRODUCT_NAME" length="500" not-null="true" />
+		</property>
+		<property name="productPrice">
+			<column name="PRODUCT_PRICE" precision="10" />
+		</property>
+</class>
+		
+Setting big decimal values:
+p1.setProductPrice(new BigDecimal(10.1).setScale(2, RoundingMode.HALF_UP));
+
+public class Product {
+
+	private Integer id;
+	private String productName;
+	private BigDecimal productPrice;
+	private Integer version;
+	private Integer stock;
+	
+	Include getter setter methods here
+}
+
+		Session s1 = sessionFactory.openSession();
+		Session s2 = sessionFactory.openSession();
+		Transaction t1 = s1.beginTransaction();
+		Transaction t2 = s2.beginTransaction();
+		Products p1 = (Products)s1.
+				createQuery("select p from Products p where id=3").uniqueResult();
+		System.out.println("Reading p2");
+		Products p2 = (Products)s2.
+				createQuery("select p from Products p where id=3").uniqueResult();
+		p1.setProductPrice(new BigDecimal(10.1).setScale(2, RoundingMode.HALF_UP));
+		p2.setProductPrice(new BigDecimal(10.2).setScale(2, RoundingMode.HALF_UP));
+		System.out.println("Saving p1");
+		s1.save(p1);
+		System.out.println("Saving p2");
+		s2.save(p2);
+		System.out.println("Committing t1");
+		t1.commit();
+		System.out.println("Committing t2");
+		t2.commit();
+		s1.close();
+		s2.close();
+		System.out.println("Done");
+---------------------------------------------
+Create Order java class to represent the order table
+public class Orders {
+	private Integer id;
+	private String shipToAddress;
+	private Integer orderValue;
+	private Integer userId;
+}
+Create order.hbm.xml with the mapping information
+		<id name="id" type="int">
+			<column name="ID" />
+			<generator class="assigned" />
+		</id>
+Add order.hbm.xml entry in hibernate.cfg.xml
+Modify User.hbm.xml by adding the section below:
+<set name="orders" lazy="false">
+	<key column="user_id" />
+	<one-to-many class="com.mydomain.model.Orders" />
+</set>
+Create Set<Order> orders; in User.java with getter/setter methods for it
+Write code like this in main method to verify:
+tx = ses.beginTransaction();		
+Order o = new Order();
+o.setId(1);
+o.setUserId(33);//Change this to an existing user id
+o.setShipToAddress("Bangalore");
+o.setOrderValue(44);
+ses.save(o);
+ses.flush();
+System.out.println("Order saved");
+User u = ses.createQuery("Select u from User u where u.id=33").uniqueResult();
+tx.commit();
+ses.close();
+Set<Orders> orders = u.getOrders();
+System.out.println(orders.getClass().getName());
+for(Order order: orders){
+	System.out.println("Order Address: "+order.getShipToAddress());
+}
+
+-------------
+MANY to ONE
+
+Define a property “private User user” in Order class
+Define the Many to One relationship in orders.hbm.xml
+<many-to-one name="user" column="user_id" 
+       			class="com.mydomain.model.User" not-null="true"/>
+
+Code to try this relationship:
+     			
+ses = sesFactory.openSession();
+Order o = ses.createQuery("select o from Order o where o.id=22").uniqueResult();
+ses.close();
+System.out.println(o.getUser().getId());
+System.out.println(o.getUser().getClass().getName());
+System.out.println(o.getUser().getName());
+
+---------------------------------------
+Import HibernateWebApp.zip as an eclipse project
+Edit the UserDao.java to change the database url in the static block
+Run the application on server
+Access http://localhost:8080/HibernateWebApp/listServlet
+	We should see a user listing
+	
+Copy Hibernate.cfg.xml, User.hbm.xml and Orders.hbm.xml into src/main/java
+Create a new class called HibernateUtil and use it to build session factory:
+
+public class HibernateUtil {
+
+	private static SessionFactory sesFac = null;
+
+	static{
+		 Configuration configuration = new Configuration().configure("hibernate.cfg.xml");
+         ServiceRegistry serviceRegistry
+             = new StandardServiceRegistryBuilder()
+                 .applySettings(configuration.getProperties()).build();
+        sesFac = configuration.buildSessionFactory(serviceRegistry);
+	}
+}
+
+Change UserDao::getAllUsers method to use hibernate to load users only
+ses = HibernateUtil.sesFac.openSession()
+List<User> users = ses.createQuery("Select u from User u").list();
+ses.close();
+return users;
+
+Uncomment the line from User.java
+public Integer getOrderCount() {
+		return orders.size();
+}
+
+
+
+
+
 
 
 

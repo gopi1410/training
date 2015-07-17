@@ -717,7 +717,7 @@ MANY to ONE
 Define a property “private User user” in Order class
 Define the Many to One relationship in orders.hbm.xml
 <many-to-one name="user" column="user_id" 
-       			class="com.mydomain.model.Users" not-null="true"/>
+       			class="com.mydomain.model.User" not-null="true"/>
 
 Code to try this relationship:
      			
